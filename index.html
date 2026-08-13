@@ -76,6 +76,21 @@ button,input,select{font:inherit}
 .finance-amount.income{color:var(--green)}
 .finance-amount.expense{color:var(--red)}
 .finance-empty{padding:20px 0;text-align:center;color:var(--muted)}
+
+.custom-nav{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.custom-nav .custom-add{border:1px dashed rgba(255,255,255,.28);background:transparent;color:#dce1ed;text-align:left;padding:10px 14px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:12px;font-weight:600}
+.custom-nav .custom-add:hover{background:rgba(123,85,239,.18);border-color:#7b55ef}
+.custom-nav .custom-item{position:relative}
+.custom-nav .custom-item button{width:100%}
+.custom-delete{position:absolute;right:7px;top:7px;border:0;background:transparent;color:#aeb6c8;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:6px;z-index:2}
+.custom-delete:hover{background:rgba(255,255,255,.12);color:#fff}
+.custom-space-card{grid-column:1/-1}
+.custom-space-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.custom-space-list{display:grid;gap:10px;margin-top:14px}
+.custom-space-note{padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);white-space:pre-wrap}
+.custom-space-empty{padding:22px 0;text-align:center;color:var(--muted)}
+.custom-space-actions{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:1000px){.custom-nav{margin-top:0}}
 @media(max-width:1000px){.finance-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.finance-summary{grid-template-columns:1fr 1fr}.finance-row{align-items:flex-start}.finance-amount{min-width:80px}}
 @media(max-width:1000px){.sidebar{width:82px}.logo span,.nav span,.profile div,.dark span{display:none}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.gym{grid-column:auto}.quote{grid-column:auto}}
@@ -93,6 +108,9 @@ body.dark-mode .search::placeholder{color:#8d98ad}
 body.dark-mode .secondary{background:#18243a;color:#dce4f5;border-color:#33415c}
 body.dark-mode .next-icon{background:#211d3d}
 body.dark-mode .progress{background:#26324a}
+body.dark-mode .day{background:#121b2d;color:var(--text);border-color:var(--line)}
+body.dark-mode .day .secondary{background:#18243a;color:#dce4f5;border-color:#33415c}
+body.dark-mode .calendar-weekday{color:#aab4c8 !important}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -105,13 +123,15 @@ body.dark-mode .progress{background:#26324a}
       <button class="active" data-view="home">🏠 <span>Inicio</span></button>
       <button data-view="tasks">☑️ <span>Tareas</span></button>
       <button data-view="calendar">📅 <span>Calendario</span></button>
-      <button data-view="faculty">🎓 <span>Facultad</span></button>
+      <button data-view="faculty">📚 <span>Estudios</span></button>
       <button data-view="gym">🏋️ <span>Gym</span></button>
       <button data-view="work">💼 <span>Trabajo</span></button>
       <button data-view="personal">🏠 <span>Personal</span></button>
       <button data-view="projects">🚀 <span>Proyectos</span></button>
       <button data-view="reminders">🔔 <span>Recordatorios</span></button>
       <button data-view="finance">💰 <span>Finanzas</span></button>
+      <div id="customNav" class="custom-nav"></div>
+      <button type="button" class="custom-add" id="newCustomSpace">＋ <span>Personalizar</span></button>
     </nav>
     <div class="profile"><div class="avatar">P</div><div><b>Usuario</b><small style="display:block;color:#aeb6c8">Dashboard personal</small></div></div>
     <button class="dark" id="darkModeToggle" type="button"><span id="darkModeLabel">🌙 Modo oscuro</span><span id="darkModeIcon">◐</span></button>
@@ -193,7 +213,7 @@ body.dark-mode .progress{background:#26324a}
     <section id="faculty" class="view">
   <div class="panel">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px">
-      <h2 style="margin:0">🎓 Facultad</h2>
+      <h2 style="margin:0">📚 Estudios</h2>
       <button class="primary" id="newSubject">＋ Agregar materia</button>
     </div>
     <p class="task-meta">Cargá tus materias y horarios. Se mostrarán automáticamente en tu agenda del día correspondiente.</p>
@@ -496,9 +516,33 @@ body.dark-mode .progress{background:#26324a}
       <label>Título<input id="eventTitleInput" placeholder="Ej. Parcial de Marketing"></label>
       <label>Fecha<input id="eventDateInput" type="date" value="2026-08-13"></label>
       <label>Hora<input id="eventTimeInput" type="time"></label>
-      <label>Categoría<select id="eventCategoryInput"><option>Facultad</option><option>Gym</option><option>Trabajo</option><option>Personal</option><option>Proyecto</option><option>Recordatorio</option></select></label>
+      <label>Categoría<select id="eventCategoryInput"><option value="Facultad">Estudios</option><option>Gym</option><option>Trabajo</option><option>Personal</option><option>Proyecto</option><option>Recordatorio</option></select></label>
     </div>
     <div class="modal-actions"><button class="secondary" id="eventCancel">Cancelar</button><button class="primary" id="eventSave">Guardar evento</button></div>
+  </div>
+</div>
+
+<div class="modal" id="customSpaceModal">
+  <div class="modal-card">
+    <h2>＋ Crear espacio personal</h2>
+    <p class="task-meta">Elegí el tipo y F0CUS le asigna un ícono automáticamente.</p>
+    <div class="form">
+      <label>Nombre<input id="customSpaceName" placeholder="Ej. Hábitos, Viajes, Ideas, Lecturas..."></label>
+      <label>Tipo<select id="customSpaceType"><option value="⚽">⚽ Deporte</option><option value="💃">💃 Danza</option><option value="📚">📚 Estudio</option><option value="✈️">✈️ Viajes</option><option value="🎮">🎮 Gaming</option><option value="💼">💼 Trabajo</option><option value="❤️">❤️ Personal</option><option value="📝">📝 Notas</option><option value="📌">📌 Otro</option></select></label>
+      <label>Descripción<input id="customSpaceDescription" placeholder="¿Para qué vas a usar este espacio?"></label>
+    </div>
+    <div class="modal-actions"><button class="secondary" id="customSpaceCancel">Cancelar</button><button class="primary" id="customSpaceSave">Crear espacio</button></div>
+  </div>
+</div>
+
+<div class="modal" id="customNoteModal">
+  <div class="modal-card">
+    <h2>Agregar contenido</h2>
+    <div class="form">
+      <label>Título<input id="customNoteTitle" placeholder="Ej. Idea, objetivo, pendiente..."></label>
+      <label>Contenido<textarea id="customNoteBody" placeholder="Escribí lo que quieras guardar en este espacio..."></textarea></label>
+    </div>
+    <div class="modal-actions"><button class="secondary" id="customNoteCancel">Cancelar</button><button class="primary" id="customNoteSave">Guardar</button></div>
   </div>
 </div>
 
@@ -507,7 +551,7 @@ body.dark-mode .progress{background:#26324a}
     <h2>Nueva tarea</h2>
     <div class="form">
       <label>Título<input id="titleInput" placeholder="Ej. Estudiar Marketing"></label>
-      <label>Categoría<select id="categoryInput"><option>Facultad</option><option>Gym</option><option>Trabajo</option><option>Personal</option><option>Proyecto</option></select></label>
+      <label>Categoría<select id="categoryInput"><option value="Facultad">Estudios</option><option>Gym</option><option>Trabajo</option><option>Personal</option><option>Proyecto</option></select></label>
       <label>Fecha<input id="dateInput" type="date" value="2026-08-13"></label>
       <label>Hora<input id="timeInput" type="time"></label>
       <label>Prioridad<select id="priorityInput"><option>Normal</option><option>Media</option><option>Urgente</option></select></label>
@@ -617,12 +661,54 @@ $("save").onclick=()=>{
  tasks.push({id:Date.now(),title,cat:$("categoryInput").value,date:$("dateInput").value,time:$("timeInput").value,priority:$("priorityInput").value,done:false});
  $("titleInput").value=""; closeModal(); save();
 };
-document.querySelectorAll(".nav button").forEach(btn=>btn.onclick=()=>showView(btn.dataset.view));
+const CUSTOM_SPACE_KEY=STORAGE_PREFIX+"customSpaces";
+let customSpaces=JSON.parse(localStorage.getItem(CUSTOM_SPACE_KEY)||"[]");
+let activeCustomSpace=null;
+function saveCustomSpaces(){localStorage.setItem(CUSTOM_SPACE_KEY,JSON.stringify(customSpaces));}
+function customSpaceId(){return "custom_"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function renderCustomSpaces(){
+  const nav=$("customNav"); if(!nav)return;
+  nav.innerHTML=customSpaces.map(s=>`<div class="custom-item"><button data-view="${s.id}">${escapeHtml(s.icon||"✨")} <span>${escapeHtml(s.name)}</span></button><button class="custom-delete" title="Eliminar espacio" onclick="deleteCustomSpace('${s.id}',event)">×</button></div>`).join("");
+  customSpaces.forEach(s=>{
+    let section=$(s.id);
+    if(!section){section=document.createElement("section");section.id=s.id;section.className="view";$("reminders").before(section);}
+    section.innerHTML=`<div class="grid"><div class="panel custom-space-card">
+      <div class="custom-space-header"><div><h2 style="margin:0">${escapeHtml(s.icon||"✨")} ${escapeHtml(s.name)}</h2><p class="task-meta">${escapeHtml(s.description||"Tu espacio personal.")}</p></div>
+      <div class="custom-space-actions"><button class="primary" onclick="openCustomNote('${s.id}')">＋ Agregar contenido</button></div></div>
+      <div class="custom-space-list">${(s.notes||[]).length?(s.notes||[]).map(n=>`<div class="custom-space-note"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><b>${escapeHtml(n.title||"Sin título")}</b><div class="task-meta" style="margin-top:4px">${new Date(n.createdAt).toLocaleDateString("es-AR")}</div></div><button class="secondary" style="padding:7px 10px" onclick="deleteCustomNote('${s.id}','${n.id}')">Eliminar</button></div><div style="margin-top:10px">${escapeHtml(n.body||"")}</div></div>`).join(""):`<div class="custom-space-empty">Todavía no hay contenido. Este espacio es tuyo: agregá ideas, hábitos, viajes, lecturas, objetivos o lo que quieras.</div>`}</div>
+    </div></div>`;
+  });
+}
+function openCustomSpaceModal(){$("customSpaceModal").classList.add("show");$("customSpaceName").focus();}
+function closeCustomSpaceModal(){$("customSpaceModal").classList.remove("show");}
+function createCustomSpace(){
+  const n=name.toLowerCase(); const autoIcon=/deporte|f[uú]tbol|futbol|b[aá]squet|tenis|rugby|p[aá]del|voley|voleibol/.test(n)?"⚽":/danza|ballet|bailar/.test(n)?"💃":/estudio|estudiar|colegio|escuela|facultad/.test(n)?"📚":/viaje|viajes|vacaciones/.test(n)?"✈️":/gaming|videojuego|videojuegos/.test(n)?"🎮":/trabajo|laburo|empleo/.test(n)?"💼":/personal|salud|bienestar/.test(n)?"❤️":/nota|notas|idea|ideas/.test(n)?"📝":$("customSpaceType").value||"📌";
+  const name=$("customSpaceName").value.trim(); if(!name)return;
+  const space={id:customSpaceId(),name,icon:autoIcon,description:$("customSpaceDescription").value.trim(),notes:[]};
+  customSpaces.push(space);saveCustomSpaces();$("customSpaceName").value="";$("customSpaceDescription").value="";closeCustomSpaceModal();renderCustomSpaces();showView(space.id);
+}
+function deleteCustomSpace(id,e){if(e)e.stopPropagation();const s=customSpaces.find(x=>x.id===id);if(!s)return;if(!confirm(`¿Eliminar el espacio "${s.name}"?`))return;customSpaces=customSpaces.filter(x=>x.id!==id);saveCustomSpaces();const el=$(id);if(el)el.remove();renderCustomSpaces();showView("finance");}
+function openCustomNote(spaceId){activeCustomSpace=spaceId;$("customNoteModal").classList.add("show");$("customNoteTitle").focus();}
+function closeCustomNote(){$("customNoteModal").classList.remove("show");activeCustomSpace=null;}
+function saveCustomNote(){
+  const s=customSpaces.find(x=>x.id===activeCustomSpace);if(!s)return;const title=$("customNoteTitle").value.trim(),body=$("customNoteBody").value.trim();if(!title&&!body)return;
+  s.notes=s.notes||[];s.notes.unshift({id:Date.now().toString(),title:title||"Sin título",body,createdAt:Date.now()});saveCustomSpaces();$("customNoteTitle").value="";$("customNoteBody").value="";closeCustomNote();renderCustomSpaces();showView(s.id);
+}
+function deleteCustomNote(spaceId,noteId){const s=customSpaces.find(x=>x.id===spaceId);if(!s)return;s.notes=(s.notes||[]).filter(n=>n.id!==noteId);saveCustomSpaces();renderCustomSpaces();showView(spaceId);}
+if($("newCustomSpace"))$("newCustomSpace").onclick=openCustomSpaceModal;
+if($("customSpaceCancel"))$("customSpaceCancel").onclick=closeCustomSpaceModal;
+if($("customSpaceSave"))$("customSpaceSave").onclick=createCustomSpace;
+if($("customNoteCancel"))$("customNoteCancel").onclick=closeCustomNote;
+if($("customNoteSave"))$("customNoteSave").onclick=saveCustomNote;
+renderCustomSpaces();
+
+document.querySelectorAll(".nav button[data-view]").forEach(btn=>btn.onclick=()=>showView(btn.dataset.view));
 document.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();showView(a.dataset.go)});
 function showView(view){
  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
- $(view).classList.add("active");
- document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+ const target=$(view); if(!target)return;
+ target.classList.add("active");
+ document.querySelectorAll(".nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
 }
 const registerGym = $("registerGym");
 if(registerGym){
@@ -692,7 +778,7 @@ function buildCalendar(){
  const firstWeekday=new Date(year,month,1).getDay(); // 0=domingo ... 6=sábado
 
  // Encabezados: domingo primero para que las fechas respeten el calendario real.
- grid.innerHTML=days.map(d=>`<div style="font-size:11px;font-weight:800;color:#6f7890;padding:5px">${d}</div>`).join("");
+ grid.innerHTML=days.map(d=>`<div class="calendar-weekday" style="font-size:11px;font-weight:800;color:var(--muted);padding:5px">${d}</div>`).join("");
 
  // Celdas vacías antes del día 1. En agosto de 2026 hay 6: domingo-viernes.
  for(let i=0;i<firstWeekday;i++){
