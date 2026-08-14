@@ -115,6 +115,15 @@ body.dark-mode .calendar-weekday{color:#aab4c8 !important}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+<script>
+  const SUPABASE_URL = "https://akveecbssnxfxlvcjwey.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_lWhEXPNharp7gNA-Ds3_w_a4o1lVEq";
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+</script>
 </head>
 <body>
 <div class="app">
