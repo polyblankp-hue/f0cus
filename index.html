@@ -842,7 +842,7 @@ function getSubjects(){
   catch(e){ return []; }
 }
 function saveSubjects(subjects){
-  
+  localStorage.setItem(STORAGE_PREFIX+"focusSubjects",JSON.stringify(subjects));
   renderSubjects();
   renderTodayAgenda();
 }
