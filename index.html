@@ -575,7 +575,12 @@ const STORAGE_PREFIX="f0cus_share_v1_";
 const initialTasks=[];
 let tasks=JSON.parse(localStorage.getItem(STORAGE_PREFIX+"focusTasks")||"null")||initialTasks;
 const $=id=>document.getElementById(id);
-function save(){render();if(typeof buildCalendar==="function")buildCalendar();if(typeof renderTodayAgenda==="function")renderTodayAgenda();}
+function save(){
+  localStorage.setItem(STORAGE_PREFIX+"focusTasks",JSON.stringify(tasks));
+  render();
+  if(typeof buildCalendar==="function")buildCalendar();
+  if(typeof renderTodayAgenda==="function")renderTodayAgenda();
+}
 function renderTask(t){
  const icon={Facultad:"🎓",Gym:"🏋️",Trabajo:"💼",Personal:"🏠",Proyecto:"🚀"}[t.cat]||"📋";
  return `<div class="task ${t.done?"done":""}" data-id="${t.id}">
