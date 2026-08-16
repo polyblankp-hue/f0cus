@@ -857,6 +857,26 @@ if($("customNoteSave"))$("customNoteSave").onclick=saveCustomNote;
 renderCustomSpaces();
 
 document.querySelectorAll(".nav button[data-view]").forEach(btn=>btn.onclick=()=>showView(btn.dataset.view));
+  const sidebar = document.querySelector(".sidebar");
+const sidebarToggle = document.getElementById("sidebarToggle");
+
+if (sidebar && sidebarToggle) {
+  sidebarToggle.addEventListener("click", () => {
+    if (window.innerWidth <= 650) {
+      sidebar.classList.toggle("mobile-open");
+    } else {
+      sidebar.classList.toggle("collapsed");
+    }
+  });
+
+  document.querySelectorAll(".nav button[data-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (window.innerWidth <= 650) {
+        sidebar.classList.remove("mobile-open");
+      }
+    });
+  });
+}
 document.querySelectorAll("[data-go]").forEach(a=>a.onclick=e=>{e.preventDefault();showView(a.dataset.go)});
 function showView(view){
  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
